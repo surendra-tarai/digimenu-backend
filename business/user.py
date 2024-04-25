@@ -30,8 +30,8 @@ class UserSchema(Schema):
 
 
 class UserBusiness:
-    def __init__(self, collection: str = None) -> None:
-        self.dal = DAL(collection)
+    def __init__(self) -> None:
+        self.dal = DAL('admin_users')
         self.serializer = MongoDBSerializer()
 
     def get_admin_user_details_by_login_id(self, login_id):

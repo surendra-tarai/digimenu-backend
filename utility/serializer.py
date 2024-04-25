@@ -4,8 +4,10 @@ from bson import ObjectId
 from datetime import datetime, date
 from utility.constant import DateStringFormat
 from pymongo.command_cursor import CommandCursor
-import json
+from bson.decimal128 import Decimal128
+from decimal import Decimal, getcontext
 
+getcontext().prec = 28
 
 class MongoDBSerializer:
     def __init__(self) -> None:
@@ -35,9 +37,11 @@ class MongoDBSerializer:
         for key, value in item.items():
             if isinstance(value, ObjectId):
                 item[key] = str(value)
-            if isinstance(value, (date, datetime)):
-                item[key] = value.strftime(DateStringFormat.ISO_FORMAT)
-            if isinstance(value, list):
+            elif isinstance(value, (date, datetime)):
+                item[key] = value.isoformat()
+            elif isinstance(value, Decimal128):
+                item[key] = float(value.to_decimal())
+            elif isinstance(value, list):
                 if fields_keep_one_record := kwargs.get('fields_keep_one_record'):
                     if key in fields_keep_one_record:
                         value = value[0]
@@ -45,7 +49,7 @@ class MongoDBSerializer:
                         continue
 
                 item[key] = self.__list_serialize(value, **kwargs)
-            if isinstance(value, dict):
+            elif isinstance(value, dict):
                 item[key] = self.__dict_serialize(value, **kwargs)
 
         return item
