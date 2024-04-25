@@ -42,9 +42,4 @@ def static_dir(path):
     return send_from_directory("assets", path)
 
 if __name__ == '__main__':
-    # app.run(debug=True)
-    # port = int(os.environ.get("PORT", 5000))
-    # app.run(debug=True, host='0.0.0.0', port=5000)
-    app.run(host='192.168.56.103', port=5000)
-    # app.run(debug=True, host='192.168.29.154', port=5000)
-    # app.run(debug=True, port=5000, host='0.0.0.0')
+    app.run(debug=True)
