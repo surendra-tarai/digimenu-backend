@@ -8,22 +8,22 @@ import pymongo
 from pymongo.errors import OperationFailure
 from utility import Logger
 from utility.constant import Status
-
+from typing import List, Tuple, Dict
+import os
 LOGGER = Logger('DAL')
+
+MONGODB_HOST = os.getenv('MONGODB_HOST')
+MONGO_DATABASE = os.getenv('MONGO_DATABASE')
 
 
 class DAL:
     '''DAL(Data Access Layer) has commmon CRUD operational functions with mongodb
        such as find, add, update, delete, etc.
     '''
-    # MongoDB Atlas
-    data_source = 'mongodb+srv://starai:n4euaQdbw8HArLnX@mongodb-hbeu6.mongodb.net'  # cloud
-    # data_source = 'mongodb://localhost:27017/'  # local
-    client = pymongo.MongoClient(data_source)
-    database = 'digi-menu'  # read from one config file or environemnt variable
-    db = client[database]
 
-    def __init__(self, collection=None):
+    def __init__(self, collection: str):
+        client = pymongo.MongoClient(MONGODB_HOST)
+        self.db = client[MONGO_DATABASE]
         self.collection = collection
 
     def insert_document(self, document, collection=None):
@@ -57,11 +57,15 @@ class DAL:
             LOGGER.exception(e)
 
     def modify_document(self, filter_: dict, new_value: dict) -> boolean:
+        modified_count = 0
         update_query = {
             '$set': new_value
         }
         db_result = self.db[self.collection].update_one(filter_, update_query)
-        return db_result.acknowledged
+        if db_result.acknowledged and db_result.modified_count > 0:
+            modified_count = db_result.modified_count
+
+        return modified_count
 
     def insert_documents(self, documents, collection=None):
         '''Insert multiple documents/records at speicified collection
@@ -127,7 +131,9 @@ class DAL:
 
     def find_doc_by_id(self, id, fields=None, collection=None):
         try:
-            filter_ = {"_id": ObjectId(id)}
+            if isinstance(id, str):
+                id = ObjectId(id)
+            filter_ = {"_id": id}
             return self.find_one_document(filter_, fields, collection)
         except Exception as e:
             print(e)
@@ -155,18 +161,20 @@ class DAL:
                 raise TypeError('filter_ must be a dict type of value')
             if fields and not isinstance(fields, (set, dict)):
                 raise TypeError('fields must be a set or dict type of value')
-            totalRecords = 0
+            total_records = 0
             if pagination and isinstance(pagination, dict):
                 page = pagination['page']
                 size = pagination['size']
                 skip = size*(page-1)
                 limit = size
-                records = self.db[collection].find(
-                    filter_, fields).skip(skip).limit(limit)
+                records = self.db[collection] \
+                              .find(filter_, fields) \
+                              .skip(skip) \
+                              .limit(limit)
             else:
                 records = self.db[collection].find(filter_, fields).limit(500)
 
-            totalRecords = self.db[collection].count_documents(filter_)
+            total_records = self.db[collection].count_documents(filter_)
             final_records = []
             for record in records:
                 record = dict(record)
@@ -177,7 +185,7 @@ class DAL:
             if pagination:
                 pagination_content = {'page': page,
                                       'size': size,
-                                      'totalRecords': totalRecords}
+                                      'total_records': total_records}
                 return {'data': final_records, 'pagination': pagination_content}
 
             return {'data': final_records}
@@ -220,7 +228,7 @@ class DAL:
             total_records = self.db[collection].count_documents(filter_)
             pagination_content = {'page': page,
                                   'size': size,
-                                  'totalRecords': total_records}
+                                  'total_records': total_records}
             output['pagination'] = pagination_content
         output['status'] = Status.SUCCESS.value
         return output

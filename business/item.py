@@ -1,6 +1,6 @@
 
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from bson import ObjectId
 from utility import (MongoDBSerializer,
@@ -13,15 +13,15 @@ from utility import (MongoDBSerializer,
 DEFAULT_PAGE = 1
 DEFAULT_PAGE_SIZE = 10
 
-LOGGER = Logger('PRODUCT_BUSINESS')
+LOGGER = Logger('ITEM_BUSINESS')
 
 
-class ProductBusiness:
-    def __init__(self, collection: str = 'products') -> None:
-        self.dal = DAL(collection)
+class ItemBusiness:
+    def __init__(self) -> None:
+        self.dal = DAL('menu_items')
         self.serializer = MongoDBSerializer()
 
-    def get_products(self, page=PaginationSetting.DEFAULT_PAGE_NUMBER, size=PaginationSetting.DEFAULT_PAGE_SIZE, search_keyword: str = None):
+    def get_items(self, page=PaginationSetting.DEFAULT_PAGE_NUMBER, size=PaginationSetting.DEFAULT_PAGE_SIZE, search_keyword: str = None):
         result = {'status': Status.UNKNOWN, 'data': []}
         try:
 
@@ -34,14 +34,15 @@ class ProductBusiness:
                     ]
                 }
 
+            fields = {'_id', 'name', 'description', 'is_available', 'price', 'sale_price'}
             pagination = {'page': page, 'size': size}
-            db_result = self.dal.find_documents(filter_, pagination=pagination)
+            db_result = self.dal.find_documents(filter_, fields=fields, pagination=pagination)
 
-            products = db_result.get('data')
-            products = self.serializer.serialize(products)
+            items = db_result.get('data')
+            items = self.serializer.serialize(items)
 
             result = {'status': Status.SUCCESS,
-                      'data': products,
+                      'data': items,
                       'pagination': db_result.get('pagination')}
 
         except Exception as ex:
@@ -50,60 +51,64 @@ class ProductBusiness:
         finally:
             return result
 
-    def add_product(self, name: str, description: str, mrp: float, sale_price: float, is_available: bool = True):
+    def add_item(self, name: str, description: str, price: float, sale_price: float, is_available: bool = True):
         result = {'status': Status.UNKNOWN, 'data': None}
 
-        currentTime = datetime.utcnow().strftime(DateStringFormat.ISO_FORMAT.value)
+        current_time = datetime.now(timezone.utc)
 
         payload = {
             'name': name,
             'description': description,
-            'mrp': mrp,
+            'price': price,
             'sale_price': sale_price,
             'is_available': is_available,
-            'added_on': currentTime
+            'added_on': current_time
         }
 
         db_result = self.dal.insert_document(payload)
 
         if db_result and db_result.acknowledged:
             payload['_id'] = str(payload.get('_id'))
-            result['data'] = payload
+            result['data']  = self.serializer.serialize(payload)
             result['status'] = Status.SUCCESS
 
         return result
     
-    def modify_product(self, id:str, data: dict):
+    def modify_item(self, id:str, data: dict):
         result = {'status': Status.UNKNOWN, 'data': None}
         try:
-            product_id = ObjectId(id)
-            filter_ = {'_id': product_id}
+            item_id = ObjectId(id)
+            filter_ = {'_id': item_id}
             
-            data['modified_on'] = datetime.utcnow().strftime(DateStringFormat.ISO_FORMAT.value)
+            data['modified_on'] = datetime.now(timezone.utc)#.strftime(DateStringFormat.ISO_FORMAT.value)
         
-            is_modified = self.dal.modify_document(filter_, data)
+            modified_count = self.dal.modify_document(filter_, data)
 
-            if is_modified:
+            if modified_count:
                 result['status'] = Status.SUCCESS
                 result['message'] = 'Modified Successfully'
+            else:
+                result['status'] = Status.NOT_FOUND
+                result['message'] = 'Could not change anything since the given id was not found.'
+                
         except Exception as e:
             LOGGER.error(e)
             result['status'] = Status.ERROR
             
         return result
 
-    def delete_product(self, id):
+    def delete_item(self, id):
         result = {'status': Status.UNKNOWN, 'data': None}
 
-        product_id = ObjectId(id)
-        filter_ = {'_id': product_id}
+        item_id = ObjectId(id)
+        filter_ = {'_id': item_id}
         
         deleted_count = self.dal.delete_document(filter_)
         if deleted_count:
             result['status'] = Status.SUCCESS
-            result['message'] = f'{deleted_count} product was removed.'
+            result['message'] = f'{deleted_count} item was removed.'
         else:
             result['status'] = Status.NOT_FOUND
-            result['message'] = 'No product was removed.'
+            result['message'] = 'No item was removed.'
         
         return result

@@ -1,4 +1,6 @@
 import os
+from dotenv import load_dotenv
+load_dotenv(override=True)
 from flask import Flask, send_from_directory
 from flask_restful import Resource, Api
 from flask_cors import CORS
@@ -6,8 +8,10 @@ from flask_jwt_extended import JWTManager
 from datetime import timedelta
 # resources
 from resources import (AdminUserLogin,
-                       AdminProducts,
-                       TokenRefresh, 
+                       ItemManagement,
+                       TokenRefresh,
+                       TableManagement, 
+                       MenuManagement,
                        Ping)
 
 app = Flask(__name__)
@@ -25,17 +29,22 @@ jwt = JWTManager(app)
 api.add_resource(Ping, '/ping')
 api.add_resource(AdminUserLogin, '/admin/login')
 api.add_resource(TokenRefresh, '/user/refresh')
-api.add_resource(AdminProducts, '/admin/products', '/admin/products/<id>')
+api.add_resource(ItemManagement, '/admin/items', '/admin/items/<id>')
+
+# table management
+api.add_resource(TableManagement, '/admin/tables', '/admin/tables/<id>')
+
+# menu management
+api.add_resource(MenuManagement, '/admin/menus', '/admin/menus/<id>')
 
 @app.route("/assets/<path:path>")
 def static_dir(path):
     return send_from_directory("assets", path)
 
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    # app.run(debug=True)
     # port = int(os.environ.get("PORT", 5000))
     # app.run(debug=True, host='0.0.0.0', port=5000)
-    # app.run(host='192.168.56.103', port=5000)
+    app.run(host='192.168.56.103', port=5000)
     # app.run(debug=True, host='192.168.29.154', port=5000)
     # app.run(debug=True, port=5000, host='0.0.0.0')

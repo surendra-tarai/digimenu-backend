@@ -27,7 +27,7 @@ LOGGER = Logger('RESOURCE_USER')
 
 class AdminUserLogin(Resource):
     def __init__(self) -> None:
-        self.business = UserBusiness('admin_user')
+        self.business = UserBusiness()
 
     def post(self):
         parser = reqparse.RequestParser()
@@ -40,7 +40,7 @@ class AdminUserLogin(Resource):
         login_id = data.get('loginid')
         user_details = self.business.get_admin_user_details_by_login_id(login_id)
 
-        if user_details and user_details.get('status') == UserStatus.ACTIVE.value:
+        if user_details:
             if user_details.get('password') == data.get('password'):
                 identity = str(user_details.get('id'))
                 user_claims = self.business.get_user_claims(user_details)
