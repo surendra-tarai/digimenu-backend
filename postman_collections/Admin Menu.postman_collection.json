@@ -1,0 +1,257 @@
+{
+	"info": {
+		"_postman_id": "aeed1289-0ec6-497b-b96f-447ab06ddae2",
+		"name": "Admin Menu",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20788788"
+	},
+	"item": [
+		{
+			"name": "Get tables",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var template = `",
+							"<style type=\"text/css\">",
+							"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}",
+							"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}",
+							"    .tftable tr {background-color:#ffffff;}",
+							"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}",
+							"    .tftable tr:hover {background-color:#e0ffff;}",
+							"</style>",
+							"",
+							"<table class=\"tftable\" border=\"1\">",
+							"    <tr>",
+							"        <th>ID</th>",
+							"        <th>Name</th>",
+							"        <th>Type</th>",
+							"        <th>MRP</th>",
+							"        <th>Sale Price</th>",
+							"        <th>Is Available</th>",
+							"    </tr>",
+							"    ",
+							"    {{#each response.data}}",
+							"        <tr>",
+							"            <td>{{_id}}</td>",
+							"            <td>{{name}}</td>",
+							"            <td>{{type}}</td>",
+							"            <td>{{mrp}}</td>",
+							"            <td>{{sale_price}}</td>",
+							"            <td>{{#if is_available}}Yes{{else}}No{{/if}}</td>",
+							"        </tr>",
+							"    {{/each}}",
+							"</table>",
+							"`;",
+							"",
+							"function constructVisualizerPayload() {",
+							"    return {response: pm.response.json()}",
+							"}",
+							"",
+							"pm.visualizer.set(template, constructVisualizerPayload());"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{jwt_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"loginid\": \"admin\",\n    \"password\": \"password\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/admin/tables",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"admin",
+						"tables"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add table",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var template = `",
+							"<style type=\"text/css\">",
+							"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}",
+							"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}",
+							"    .tftable tr {background-color:#ffffff;}",
+							"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}",
+							"    .tftable tr:hover {background-color:#e0ffff;}",
+							"</style>",
+							"",
+							"<table class=\"tftable\" border=\"1\">",
+							"    <tr>",
+							"        <th>ID</th>",
+							"        <th>Name</th>",
+							"        <th>Type</th>",
+							"        <th>MRP</th>",
+							"        <th>Sale Price</th>",
+							"        <th>Is Available</th>",
+							"    </tr>",
+							"    ",
+							"    {{#each response.data}}",
+							"        <tr>",
+							"            <td>{{_id}}</td>",
+							"            <td>{{name}}</td>",
+							"            <td>{{type}}</td>",
+							"            <td>{{mrp}}</td>",
+							"            <td>{{sale_price}}</td>",
+							"            <td>{{#if is_available}}Yes{{else}}No{{/if}}</td>",
+							"        </tr>",
+							"    {{/each}}",
+							"</table>",
+							"`;",
+							"",
+							"function constructVisualizerPayload() {",
+							"    return {response: pm.response.json()}",
+							"}",
+							"",
+							"pm.visualizer.set(template, constructVisualizerPayload());"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{jwt_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"table_number\": \"G2\",\n    \"capacity\": 2,\n    \"status\": \"AVAILABLE\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/admin/tables",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"admin",
+						"tables"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Table modification",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var template = `",
+							"<style type=\"text/css\">",
+							"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}",
+							"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}",
+							"    .tftable tr {background-color:#ffffff;}",
+							"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}",
+							"    .tftable tr:hover {background-color:#e0ffff;}",
+							"</style>",
+							"",
+							"<table class=\"tftable\" border=\"1\">",
+							"    <tr>",
+							"        <th>ID</th>",
+							"        <th>Name</th>",
+							"        <th>Type</th>",
+							"        <th>MRP</th>",
+							"        <th>Sale Price</th>",
+							"        <th>Is Available</th>",
+							"    </tr>",
+							"    ",
+							"    {{#each response.data}}",
+							"        <tr>",
+							"            <td>{{_id}}</td>",
+							"            <td>{{name}}</td>",
+							"            <td>{{type}}</td>",
+							"            <td>{{mrp}}</td>",
+							"            <td>{{sale_price}}</td>",
+							"            <td>{{#if is_available}}Yes{{else}}No{{/if}}</td>",
+							"        </tr>",
+							"    {{/each}}",
+							"</table>",
+							"`;",
+							"",
+							"function constructVisualizerPayload() {",
+							"    return {response: pm.response.json()}",
+							"}",
+							"",
+							"pm.visualizer.set(template, constructVisualizerPayload());"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{jwt_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"status\": \"RESERVED\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/admin/tables/66286e479a92fdd24a612e43",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"admin",
+						"tables",
+						"66286e479a92fdd24a612e43"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
