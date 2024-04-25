@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script>
+        function resizeIframe() {
+            var iframe = document.getElementById("myIframe");
+            if (iframe && iframe.contentWindow && iframe.contentWindow.document) {
+                iframe.style.height = iframe.contentWindow.document.body.scrollHeight + 'px';
+            }
+        }
+
+        window.addEventListener('load', function () {
+            resizeIframe();
+        });
+
+        window.addEventListener('load', function () {
+            resizeIframe();
+        });
+    </script>
+</head>
+
+<body>
+    <iframe id="myIframe" src="https://qr.mydigimenu.com/36f62b7c-e406-48f5-870f-02512e313c7a"
+        style='height: 800px; width: 100%;' frameborder="0" />
+</body>
+
+</html>
